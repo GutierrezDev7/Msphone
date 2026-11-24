@@ -1,0 +1,97 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+  --font-sans: var(--font-inter), 'Inter', system-ui, sans-serif;
+  --font-display: var(--font-inter-tight), 'Inter Tight', system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--card);
+  --color-secondary-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-destructive: var(--primary);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+}
+
+:root {
+  color-scheme: dark;
+  --background: oklch(0.13 0.025 260);
+  --foreground: oklch(0.97 0.008 250);
+  --card: oklch(0.17 0.03 260);
+  --card-foreground: oklch(0.97 0.008 250);
+  --muted: oklch(0.21 0.03 260);
+  --muted-foreground: oklch(0.7 0.025 255);
+  --primary: oklch(0.65 0.22 255);
+  --primary-foreground: oklch(0.99 0.005 250);
+  --accent: oklch(0.25 0.07 255);
+  --accent-foreground: oklch(0.97 0.008 250);
+  --radius: 1rem;
+  --border: oklch(0.3 0.035 260);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/60;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+@utility text-primary {
+  background-image: linear-gradient(100deg, var(--primary) 10%, oklch(0.82 0.12 230) 90%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+dialog::backdrop {
+  background: oklch(0.08 0.03 260 / 0.75);
+  backdrop-filter: blur(6px);
+}
