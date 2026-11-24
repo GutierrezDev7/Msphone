@@ -7,7 +7,7 @@ export function SiteFooter() {
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-7xl flex-col gap-10 px-5 py-14 md:flex-row md:items-end md:justify-between md:px-8">
         <div className="flex flex-col gap-3">
-          <p className="font-display text-6xl tracking-[0.1em] md:text-8xl">
+          <p className="font-display text-4xl tracking-[0.1em] min-[380px]:text-5xl md:text-8xl">
             <span className="text-primary">MS</span> PHONE
           </p>
           <p className="max-w-sm leading-relaxed text-muted-foreground">

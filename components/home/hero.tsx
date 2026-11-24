@@ -6,9 +6,9 @@ import { whatsappUrl } from '@/lib/store-config'
 
 export function Hero() {
   return (
-    <section className="px-3 pt-20 md:px-5 md:pt-24">
-      <div className="relative flex min-h-[min(780px,calc(100svh-5rem))] flex-col justify-end overflow-hidden rounded-[2rem] border border-border/70 bg-background text-foreground md:min-h-[min(820px,calc(100svh-6rem))]">
-        <div className="absolute inset-0 lg:left-auto lg:w-[60%]">
+    <section className="px-2 pt-16 sm:px-3 sm:pt-20 md:px-5 md:pt-24">
+      <div className="relative flex min-h-[min(680px,calc(100svh-4.5rem))] flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-background text-foreground sm:min-h-[min(780px,calc(100svh-5rem))] sm:rounded-[2rem] md:min-h-[min(820px,calc(100svh-6rem))]">
+        <div className="absolute inset-0 hidden md:block lg:left-auto lg:w-[60%]">
           <Image
             src="/images/iphonehero.jpg"
             alt="iPhone azul em um estúdio com iluminação cinematográfica"
@@ -23,12 +23,12 @@ export function Hero() {
           aria-hidden="true"
         />
 
-        <div className="relative z-10 flex w-full flex-col gap-7 p-6 pb-10 md:max-w-3xl md:gap-8 md:p-16 lg:max-w-2xl">
+        <div className="relative z-10 flex w-full flex-col gap-5 p-5 pb-7 sm:gap-7 sm:p-6 sm:pb-10 md:max-w-3xl md:gap-8 md:p-16 lg:max-w-2xl">
         
-          <h1 className="max-w-3xl font-display text-balance text-5xl leading-[0.98] md:text-7xl lg:text-8xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-both">
+          <h1 className="max-w-3xl font-display text-balance text-[2.25rem] leading-[0.98] min-[380px]:text-4xl sm:text-5xl md:text-7xl lg:text-8xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-both">
             Seu próximo iPhone começa com uma boa escolha.
           </h1>
-          <p className="max-w-lg text-pretty text-base leading-relaxed text-foreground/75 md:text-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 fill-mode-both">
+          <p className="max-w-lg text-pretty text-sm leading-relaxed text-foreground/75 min-[380px]:text-base md:text-lg animate-in fade-in slide-in-from-bottom-4 duration-700 delay-700 fill-mode-both">
             iPhones novos e seminovos, assistência técnica especializada e acessórios. E se o seu
             aparelho ainda tem história, a gente avalia na troca.
           </p>

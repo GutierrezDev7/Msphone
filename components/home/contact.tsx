@@ -7,7 +7,7 @@ export function Contact() {
     <section id="contato" className="scroll-mt-20 mx-auto max-w-7xl px-5 pb-24 md:px-8 md:pb-32">
       <div className="mb-8 max-w-2xl">
         <p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-primary">Atendimento direto</p>
-        <h2 className="font-display text-5xl leading-[0.98] text-balance md:text-7xl">
+        <h2 className="font-display text-4xl leading-[0.98] text-balance min-[380px]:text-5xl md:text-7xl">
           A gente te ajuda a <span className="text-primary">escolher.</span>
         </h2>
       </div>

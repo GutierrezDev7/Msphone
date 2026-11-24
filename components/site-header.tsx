@@ -31,12 +31,12 @@ export function SiteHeader() {
         scrolled ? 'border-b border-border bg-background/90 backdrop-blur-xl' : 'bg-background/0',
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:h-20 md:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="MS PHONE, página inicial">
-          <span className="flex size-10 items-center justify-center rounded-full border border-primary/70 bg-background font-display text-sm italic text-primary shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_30%,transparent)]">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-3 sm:px-5 md:h-20 md:px-8">
+        <Link href="/" className="flex items-center gap-2 sm:gap-3" aria-label="MS PHONE, página inicial">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-primary/70 bg-background font-display text-xs italic text-primary shadow-[0_0_24px_color-mix(in_oklch,var(--primary)_30%,transparent)] sm:size-10 sm:text-sm">
             MS
           </span>
-          <span className="font-display text-xl tracking-[0.12em] md:text-2xl">PHONE</span>
+          <span className="hidden font-display text-lg tracking-[0.12em] min-[360px]:inline sm:text-xl md:text-2xl">PHONE</span>
         </Link>
 
         <nav aria-label="Principal" className="hidden md:block">
@@ -55,10 +55,10 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/loja"
-            className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80 md:hidden"
+            className="hidden text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80 sm:block md:hidden"
           >
             Vitrine
           </Link>
@@ -66,10 +66,11 @@ export function SiteHeader() {
             href={whatsappUrl('Olá! Vim pelo site da MS PHONE.')}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-full bg-[#25D366] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-[#062b17] transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366]"
+            aria-label="Falar com a MS PHONE pelo WhatsApp"
+            className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#25D366] text-[#062b17] transition-transform hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#25D366] sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2.5"
           >
             <WhatsappIcon className="size-4" />
-            <span>WhatsApp</span>
+            <span className="hidden text-xs font-bold uppercase tracking-wider sm:inline">WhatsApp</span>
           </a>
         </div>
       </div>

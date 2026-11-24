@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 
 export default function ShopPage() {
   return (
-    <main className="mx-auto max-w-7xl px-5 pb-24 pt-32 md:px-8 md:pt-40">
+    <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-5 md:px-8 md:pb-24 md:pt-40">
       <header className="mb-12 flex flex-col gap-4">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-primary">Conheça a MS PHONE</p>
-        <h1 className="font-display text-6xl leading-[0.9] text-balance md:text-8xl">
+        <h1 className="font-display text-4xl leading-[0.92] text-balance min-[380px]:text-5xl sm:text-6xl md:text-8xl">
           Tecnologia. <span className="text-primary">Do seu jeito.</span>
         </h1>
         <p className="max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">

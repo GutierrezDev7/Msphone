@@ -30,11 +30,11 @@ const OPTIONS = [
 
 export function Conditions() {
   return (
-    <section className="mx-auto max-w-7xl px-5 pb-24 md:px-8 md:pb-36">
-      <div className="mb-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-5 md:px-8 md:pb-36">
+      <div className="mb-10 flex flex-col gap-4 sm:mb-12 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="mb-5 text-xs font-semibold uppercase tracking-[0.3em] text-primary">Encontre o seu</p>
-          <h2 className="font-display text-5xl leading-[0.95] text-balance md:text-7xl">
+          <h2 className="font-display text-4xl leading-[0.95] text-balance min-[380px]:text-5xl md:text-7xl">
             O próximo capítulo <span className="text-primary">é seu.</span>
           </h2>
         </div>
@@ -51,7 +51,7 @@ export function Conditions() {
             <Link
               key={option.id}
               href={isTradeIn ? '/#contato' : '/loja'}
-              className="group flex min-h-72 flex-col justify-between rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:bg-muted/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary md:p-8"
+              className="group flex min-h-60 flex-col justify-between rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary/60 hover:bg-muted/70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary sm:min-h-72 sm:p-6 md:p-8"
             >
               <div className="flex items-start justify-between">
                 <span className={`flex size-14 items-center justify-center rounded-2xl border border-border/70 ${option.iconStyle}`}>
@@ -61,7 +61,7 @@ export function Conditions() {
                   0{index + 1}
                 </span>
               </div>
-              <div className="mt-12">
+              <div className="mt-8 sm:mt-12">
                 <h3 className="font-display text-3xl">{option.label}</h3>
                 <p className="mt-2 max-w-64 text-sm leading-relaxed text-muted-foreground">
                   {option.detail}

@@ -34,7 +34,7 @@ export function About() {
       <div className="mb-12 grid gap-6 md:mb-16 md:grid-cols-[1.1fr_0.7fr] md:items-end">
         <div className="flex flex-col gap-5">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">MS PHONE • Tecnologia e cuidado</p>
-          <h2 className="font-display text-5xl leading-[0.98] text-balance md:text-7xl">
+          <h2 className="font-display text-4xl leading-[0.98] text-balance min-[380px]:text-5xl md:text-7xl">
             Tudo para estar <span className="text-primary">sempre conectado.</span>
           </h2>
         </div>
