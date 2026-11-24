@@ -7,23 +7,23 @@ import { whatsappUrl } from '@/lib/store-config'
 export function Hero() {
   return (
     <section className="px-2 pt-16 sm:px-3 sm:pt-20 md:px-5 md:pt-24">
-      <div className="relative flex min-h-[min(680px,calc(100svh-4.5rem))] flex-col justify-end overflow-hidden rounded-2xl border border-border/70 bg-background text-foreground sm:min-h-[min(780px,calc(100svh-5rem))] sm:rounded-[2rem] md:min-h-[min(820px,calc(100svh-6rem))]">
-        <div className="absolute inset-0 hidden md:block lg:left-auto lg:w-[60%]">
+      <div className="relative flex min-h-[min(680px,calc(100svh-4.5rem))] flex-col justify-start overflow-hidden rounded-2xl border border-border/70 bg-background text-foreground md:justify-end sm:min-h-[min(780px,calc(100svh-5rem))] sm:rounded-[2rem] md:min-h-[min(820px,calc(100svh-6rem))]">
+        <div className="relative h-[min(42svh,18rem)] shrink-0 sm:h-[min(44svh,22rem)] md:absolute md:inset-0 md:left-auto md:h-auto md:w-[60%]">
           <Image
             src="/images/iphonehero.jpg"
             alt="iPhone azul em um estúdio com iluminação cinematográfica"
             fill
-            priority
-            sizes="(min-width: 1200px) 900px, 90vw"
-            className="object-cover object-[center_30%] animate-in fade-in zoom-in-105 duration-[1600ms]"
+            preload
+            sizes="(min-width: 768px) 60vw, 100vw"
+            className="object-cover object-[center_30%] animate-in fade-in zoom-in-105 duration-[1600ms] motion-reduce:animate-none"
           />
         </div>
         <div
-          className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-transparent lg:bg-gradient-to-r lg:from-background lg:via-background/80 lg:to-transparent"
+          className="absolute inset-0 bg-gradient-to-t from-background via-background/65 to-transparent md:bg-gradient-to-r md:from-background md:via-background/80 md:to-transparent"
           aria-hidden="true"
         />
 
-        <div className="relative z-10 flex w-full flex-col gap-5 p-5 pb-7 sm:gap-7 sm:p-6 sm:pb-10 md:max-w-3xl md:gap-8 md:p-16 lg:max-w-2xl">
+        <div className="relative z-10 mt-auto flex w-full flex-col gap-5 p-5 pb-7 sm:gap-7 sm:p-6 sm:pb-10 md:max-w-3xl md:gap-8 md:p-16 lg:max-w-2xl">
         
           <h1 className="max-w-3xl font-display text-balance text-[2.25rem] leading-[0.98] min-[380px]:text-4xl sm:text-5xl md:text-7xl lg:text-8xl animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-both">
             Seu próximo iPhone começa com uma boa escolha.

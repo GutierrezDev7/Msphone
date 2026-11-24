@@ -1,12 +1,17 @@
 import type { Metadata } from 'next'
+import { connection } from 'next/server'
 import { ShopCatalog } from '@/components/shop/shop-catalog'
+import { getStoreCatalog } from '@/lib/store-catalog-server'
 
 export const metadata: Metadata = {
   title: 'Vitrine — MS PHONE',
   description: 'Conheça as categorias da MS PHONE e consulte aparelhos, acessórios e assistência pelo WhatsApp.',
 }
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  await connection()
+  const catalog = await getStoreCatalog()
+
   return (
     <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-5 md:px-8 md:pb-24 md:pt-40">
       <header className="mb-12 flex flex-col gap-4">
@@ -19,7 +24,7 @@ export default function ShopPage() {
           muda — no WhatsApp você recebe a informação atualizada.
         </p>
       </header>
-      <ShopCatalog />
+      <ShopCatalog categories={catalog.categories} />
     </main>
   )
 }
