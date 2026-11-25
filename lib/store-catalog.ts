@@ -67,6 +67,17 @@ export function canOpenConfigurator(category: Pick<StoreCategory, 'id' | 'produc
 }
 
 const IPHONE_STORAGE_OPTIONS = ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB', '2 TB']
+const IPHONE_MODELS_ADDED_IN_SEED_V2 = [
+  'iPhone 16e',
+  'iPhone 17',
+  'iPhone 17 Pro',
+  'iPhone 17 Pro Max',
+  'iPhone Air',
+  'iPhone 17e',
+  'iPhone 18 Pro',
+  'iPhone 18 Pro Max',
+  'iPhone Duo',
+]
 const IPHONE_MODELS = [
   'iPhone 11',
   'iPhone 11 Pro',
@@ -91,6 +102,7 @@ const IPHONE_MODELS = [
   'iPhone 16 Plus',
   'iPhone 16 Pro',
   'iPhone 16 Pro Max',
+  ...IPHONE_MODELS_ADDED_IN_SEED_V2,
 ]
 
 function createId(value: string) {
@@ -139,7 +151,7 @@ function createPricedStoreProduct(
   }
 }
 
-const CATALOG_SEED_VERSION = 1
+const CATALOG_SEED_VERSION = 2
 const MACBOOK_PRODUCTS = [
   createPricedStoreProduct('Mac mini M2 8/256 GB', [{ label: 'Padrão', price: 3650 }]),
   createPricedStoreProduct('Mac mini M2 8/512 GB', [{ label: 'Silver', price: 3800 }]),
@@ -405,12 +417,50 @@ function mergeSeedProduct(existing: StoreProduct, seeded: StoreProduct): StorePr
   return { ...seeded, ...existing, variants }
 }
 
+function addMissingIPhoneModels(category: StoreCategory): StoreCategory {
+  const existingProducts = new Set(
+    category.products.flatMap((product) => [
+      product.id,
+      normalizeCatalogName(product.name),
+    ]),
+  )
+  const additions = IPHONE_MODELS_ADDED_IN_SEED_V2
+    .filter(
+      (name) =>
+        !existingProducts.has(createId(name)) &&
+        !existingProducts.has(normalizeCatalogName(name)),
+    )
+    .map((name) => createStoreProduct(name, IPHONE_STORAGE_OPTIONS))
+
+  if (additions.length === 0) return category
+
+  const products = [...category.products]
+  const otherModelIndex = products.findIndex(
+    (product) =>
+      product.id === createId('Outro modelo') ||
+      normalizeCatalogName(product.name) === normalizeCatalogName('Outro modelo'),
+  )
+  products.splice(otherModelIndex < 0 ? products.length : otherModelIndex, 0, ...additions)
+  return { ...category, products }
+}
+
 export function migrateStoreCatalog(catalog: StoreCatalog): StoreCatalog {
   const categories = catalog.categories.map(normalizeLegacyAccessoryName)
-  if ((catalog.seedVersion ?? 0) >= CATALOG_SEED_VERSION) {
+  const seedVersion = catalog.seedVersion ?? 0
+  if (seedVersion >= CATALOG_SEED_VERSION) {
     return categories.some((category, index) => category !== catalog.categories[index])
       ? { ...catalog, categories }
       : catalog
+  }
+
+  if (seedVersion === 1) {
+    return {
+      ...catalog,
+      seedVersion: CATALOG_SEED_VERSION,
+      categories: categories.map((category) =>
+        category.id === 'iphone' ? addMissingIPhoneModels(category) : category,
+      ),
+    }
   }
 
   const legacyVariantLabels: Record<string, string> = {
