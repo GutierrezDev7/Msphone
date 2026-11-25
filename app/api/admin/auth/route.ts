@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   let bodyText: string | null
   try {
-    bodyText = await readRequestBodyWithinLimit(request, 4096)
+    bodyText = await readRequestBodyWithinLimit(request, 1_048_576)
   } catch (error) {
     if (error instanceof InvalidRequestBodyEncodingError) {
       return Response.json({ error: 'Dados de acesso inválidos.' }, { status: 400 })
@@ -70,8 +70,7 @@ export async function POST(request: Request) {
     !isRecord(body) ||
     typeof body.username !== 'string' ||
     typeof body.password !== 'string' ||
-    body.username.length > 120 ||
-    body.password.length > 256
+    body.username.length > 120
   ) {
     return Response.json({ error: 'Informe usuário e senha.' }, { status: 400 })
   }

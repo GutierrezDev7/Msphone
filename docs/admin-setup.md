@@ -17,10 +17,12 @@ A aplicação usa `BLOB_STORE_ID` e o token OIDC gerenciado pela Vercel quando d
 
 Configure estas variáveis na área de Environment Variables da Vercel. Não as coloque no código, no Git ou em `NEXT_PUBLIC_*`.
 
+Na Vercel, selecione o ambiente **Production** para o site publicado e faça um novo deploy depois de alterar as variáveis. Para desenvolvimento local, use `.env.local` na raiz do projeto; esse arquivo é ignorado pelo Git. Variáveis em arquivos locais não são enviadas automaticamente para a Vercel.
+
 | Variável | Valor |
 | --- | --- |
 | `ADMIN_USERNAME` | `melo123` |
-| `ADMIN_PASSWORD` | Uma senha nova, aleatória e com pelo menos 16 caracteres. |
+| `ADMIN_PASSWORD` | Senha de acesso administrativo. Não há limite específico de caracteres para a senha; prefira uma senha forte. |
 | `ADMIN_SESSION_SECRET` | Um segredo aleatório com pelo menos 32 caracteres. |
 | Acesso ao Blob | `BLOB_READ_WRITE_TOKEN` ou conexão OIDC configurada pela Vercel. |
 
@@ -31,6 +33,8 @@ node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'
 ```
 
 Defina os secrets nos ambientes necessários e faça um novo deploy. Depois, acesse `https://seu-dominio/admin`. A sessão usa cookie `HttpOnly`, `SameSite=Strict` e, em produção, `Secure`. Sem banco de dados, o limite de tentativas de login é mantido em memória por instância da aplicação e pode reiniciar quando a instância reiniciar.
+
+O corpo da requisição de login tem um limite geral de 1 MiB para proteger o servidor.
 
 ## Gerenciar o catálogo
 

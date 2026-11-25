@@ -85,7 +85,6 @@ export function AdminLogin() {
             type="password"
             autoComplete="current-password"
             required
-            maxLength={256}
             value={password}
             onChange={(event) => setPassword(event.currentTarget.value)}
             className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20"

@@ -13,9 +13,7 @@ export function getAdminSetupStatus() {
     missing.push('Vercel Blob (BLOB_READ_WRITE_TOKEN ou conexão OIDC)')
   }
   if (!process.env.ADMIN_USERNAME) missing.push('ADMIN_USERNAME')
-  if (!process.env.ADMIN_PASSWORD || [...process.env.ADMIN_PASSWORD].length < 16) {
-    missing.push('ADMIN_PASSWORD (mínimo 16 caracteres)')
-  }
+  if (!process.env.ADMIN_PASSWORD) missing.push('ADMIN_PASSWORD')
   if (!process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_SESSION_SECRET.length < 32) {
     missing.push('ADMIN_SESSION_SECRET (mínimo 32 caracteres)')
   }
@@ -75,7 +73,6 @@ export function verifyAdminSession(token: string | undefined) {
     secret.length < 32 ||
     !username ||
     !password ||
-    [...password].length < 16 ||
     token.length > 1024
   ) {
     return false
