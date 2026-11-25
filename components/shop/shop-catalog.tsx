@@ -12,7 +12,11 @@ import {
 import Link from 'next/link'
 import { WhatsappIcon } from '@/components/brand-icons'
 import { whatsappUrl } from '@/lib/store-config'
-import { isConfiguratorCategory, type StoreCategory, type StoreIcon } from '@/lib/store-catalog'
+import {
+  canOpenConfigurator,
+  type StoreCategory,
+  type StoreIcon,
+} from '@/lib/store-catalog'
 
 const CATEGORY_ICONS: Record<StoreIcon, LucideIcon> = {
   smartphone: Smartphone,
@@ -34,8 +38,7 @@ export function ShopCatalog({ categories }: { categories: StoreCategory[] }) {
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {activeCategories.map((category, index) => {
         const Icon = CATEGORY_ICONS[category.icon]
-        const hasProducts = category.products.some((product) => product.active)
-        const opensConfigurator = isConfiguratorCategory(category.id) && hasProducts
+        const opensConfigurator = canOpenConfigurator(category)
         const productHref =
           category.id === 'iphone'
             ? '/loja/iphone'
@@ -57,7 +60,11 @@ export function ShopCatalog({ categories }: { categories: StoreCategory[] }) {
                   {category.detail}
                 </p>
                 <span className="mt-4 inline-flex text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-                  {opensConfigurator ? 'Ver opções' : 'Consultar no WhatsApp'}
+                  {opensConfigurator
+                    ? category.id === 'assistencia-tecnica'
+                      ? 'Solicitar assistência'
+                      : 'Ver opções'
+                    : 'Consultar no WhatsApp'}
                 </span>
               </div>
               <ArrowUpRight

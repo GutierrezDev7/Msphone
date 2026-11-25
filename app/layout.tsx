@@ -25,7 +25,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${interTight.variable} bg-background`}>
+    <html
+      lang="pt-BR"
+      className={`${inter.variable} ${interTight.variable} bg-background scroll-pt-20 md:scroll-pt-24`}
+    >
       <body className="antialiased">
         <SiteHeader />
         {children}

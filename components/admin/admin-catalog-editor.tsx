@@ -194,21 +194,32 @@ export function AdminCatalogEditor() {
   }
 
   function addProduct(categoryId: string) {
-    const product: StoreProduct = {
-      id: createId('produto'),
-      name: 'Novo produto',
-      detail: '',
-      active: true,
-      requireDetails: false,
-      variants: [
-        {
+    const isAssistance = categoryId === 'assistencia-tecnica'
+    const isIPhone = categoryId === 'iphone'
+    const defaultVariants = isIPhone
+      ? ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB', '2 TB'].map((label) => ({
           id: createId('opcao'),
-          label: 'Padrão',
+          label,
           active: true,
           price: null,
           stock: null,
-        },
-      ],
+        }))
+      : [
+          {
+            id: createId('opcao'),
+            label: 'Padrão',
+            active: true,
+            price: null,
+            stock: null,
+          },
+        ]
+    const product: StoreProduct = {
+      id: createId('produto'),
+      name: isAssistance ? 'Novo modelo' : 'Novo produto',
+      detail: '',
+      active: true,
+      requireDetails: isAssistance,
+      variants: isAssistance ? [] : defaultVariants,
     }
 
     updateCatalog((current) => ({
@@ -378,20 +389,20 @@ export function AdminCatalogEditor() {
       )}
 
       <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
-        <aside className="self-start rounded-[1.5rem] border border-border bg-card/70 p-4 lg:sticky lg:top-24">
+        <aside className="min-w-0 self-start rounded-[1.5rem] border border-border bg-card/70 p-4 lg:sticky lg:top-24">
           <div className="mb-3 flex items-center justify-between gap-3 px-2">
             <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               Categorias
             </h3>
             <span className="text-xs text-muted-foreground">{catalog.categories.length}</span>
           </div>
-          <div className="space-y-1">
+          <div className="flex gap-2 overflow-x-auto pb-2 lg:block lg:space-y-1">
             {catalog.categories.map((category) => (
               <button
                 key={category.id}
                 type="button"
                 onClick={() => setSelectedCategoryId(category.id)}
-                className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-3 text-left text-sm transition-colors ${
+                className={`flex w-auto min-w-32 shrink-0 items-center justify-between gap-3 rounded-xl px-3 py-3 text-left text-sm transition-colors lg:w-full ${
                   category.id === selectedCategoryId
                     ? 'bg-primary/10 font-semibold text-foreground'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
@@ -551,9 +562,15 @@ export function AdminCatalogEditor() {
               <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                    Estoque e opções
+                    {selectedCategory.id === 'assistencia-tecnica'
+                      ? 'Modelos de aparelho'
+                      : 'Estoque e opções'}
                   </p>
-                  <h3 className="mt-2 font-display text-2xl">Produtos da categoria</h3>
+                  <h3 className="mt-2 font-display text-2xl">
+                    {selectedCategory.id === 'assistencia-tecnica'
+                      ? 'Modelos para assistência'
+                      : 'Produtos da categoria'}
+                  </h3>
                 </div>
                 <button
                   type="button"
@@ -561,13 +578,17 @@ export function AdminCatalogEditor() {
                   className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold transition-colors hover:border-primary/50 hover:bg-primary/5"
                 >
                   <Plus className="size-4" aria-hidden="true" />
-                  Adicionar produto
+                  {selectedCategory.id === 'assistencia-tecnica'
+                    ? 'Adicionar modelo'
+                    : 'Adicionar produto'}
                 </button>
               </div>
 
               {selectedCategory.products.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
-                  Ainda não há produtos nesta categoria. Adicione um para habilitar a seleção na loja.
+                  {selectedCategory.id === 'assistencia-tecnica'
+                    ? 'Ainda não há modelos cadastrados. O cliente poderá informar o modelo manualmente até você adicionar as opções aqui.'
+                    : 'Ainda não há produtos nesta categoria. Adicione um para habilitar a seleção na loja.'}
                 </p>
               ) : (
                 <div className="space-y-3">
@@ -580,8 +601,9 @@ export function AdminCatalogEditor() {
                         <span className="min-w-0">
                           <span className="block truncate font-semibold">{product.name}</span>
                           <span className="mt-1 block text-xs text-muted-foreground">
-                            {product.variants.length} opç
-                            {product.variants.length === 1 ? 'ão' : 'ões'}
+                            {selectedCategory.id === 'assistencia-tecnica'
+                              ? 'Modelo para seleção'
+                              : `${product.variants.length} opç${product.variants.length === 1 ? 'ão' : 'ões'}`}
                             {!product.active ? ' · Oculto na loja' : ''}
                           </span>
                         </span>
@@ -623,7 +645,7 @@ export function AdminCatalogEditor() {
                               className={INPUT_CLASS_NAME}
                             />
                           </div>
-                          <div>
+                          {selectedCategory.id !== 'assistencia-tecnica' && <div>
                             <label
                               htmlFor={`${product.id}-detail`}
                               className="mb-2 block text-sm font-medium"
@@ -641,7 +663,7 @@ export function AdminCatalogEditor() {
                               }
                               className={INPUT_CLASS_NAME}
                             />
-                          </div>
+                          </div>}
                           <label className="flex items-center gap-3 text-sm">
                             <input
                               type="checkbox"
@@ -653,7 +675,9 @@ export function AdminCatalogEditor() {
                               }
                               className="size-4 accent-primary"
                             />
-                            Produto visível na loja
+                            {selectedCategory.id === 'assistencia-tecnica'
+                              ? 'Modelo visível na loja'
+                              : 'Produto visível na loja'}
                           </label>
                           <label className="flex items-center gap-3 text-sm">
                             <input
@@ -666,138 +690,159 @@ export function AdminCatalogEditor() {
                               }
                               className="size-4 accent-primary"
                             />
-                            Exigir observações do cliente
+                            {selectedCategory.id === 'assistencia-tecnica'
+                              ? 'Exigir descrição do problema'
+                              : 'Exigir observações do cliente'}
                           </label>
                         </div>
 
-                        <div className="space-y-3">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <h4 className="text-sm font-semibold">
-                              {selectedCategory.variantLabel}, preço e quantidade
-                            </h4>
-                            <button
-                              type="button"
-                              onClick={() => addVariant(selectedCategory.id, product.id)}
-                              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-foreground"
-                            >
-                              <Plus className="size-4" aria-hidden="true" />
-                              Adicionar opção
-                            </button>
-                          </div>
-
-                          {product.variants.map((variant, variantIndex) => (
-                            <div
-                              key={variant.id}
-                              className="grid gap-3 rounded-xl border border-border/70 bg-card/50 p-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_9rem_7rem_auto_auto]"
-                            >
-                              <div>
-                                <label
-                                  htmlFor={`${variant.id}-label`}
-                                  className="mb-1.5 block text-xs text-muted-foreground"
-                                >
-                                  Opção {variantIndex + 1}
-                                </label>
-                                <input
-                                  id={`${variant.id}-label`}
-                                  maxLength={80}
-                                  value={variant.label}
-                                  onChange={(event) =>
-                                    updateVariant(selectedCategory.id, product.id, variant.id, {
-                                      label: event.currentTarget.value,
-                                    })
-                                  }
-                                  className={INPUT_CLASS_NAME}
-                                />
-                              </div>
-                              <div>
-                                <label
-                                  htmlFor={`${variant.id}-price`}
-                                  className="mb-1.5 block text-xs text-muted-foreground"
-                                >
-                                  Preço (R$)
-                                </label>
-                                <input
-                                  id={`${variant.id}-price`}
-                                  type="number"
-                                  min="0"
-                                  max="100000000"
-                                  step="0.01"
-                                  value={variant.price ?? ''}
-                                  onChange={(event) => {
-                                    const value = event.currentTarget.value
-                                    const price = parseOptionalNumber(value)
-                                    if (value && price === null) {
-                                      setNotice({
-                                        kind: 'error',
-                                        message: 'Informe um preço entre R$ 0 e R$ 100.000.000.',
-                                      })
-                                      return
-                                    }
-                                    updateVariant(selectedCategory.id, product.id, variant.id, {
-                                      price,
-                                    })
-                                  }}
-                                  className={INPUT_CLASS_NAME}
-                                />
-                              </div>
-                              <div>
-                                <label
-                                  htmlFor={`${variant.id}-stock`}
-                                  className="mb-1.5 block text-xs text-muted-foreground"
-                                >
-                                  Quantidade
-                                </label>
-                                <input
-                                  id={`${variant.id}-stock`}
-                                  type="number"
-                                  min="0"
-                                  max="10000000"
-                                  step="1"
-                                  value={variant.stock ?? ''}
-                                  onChange={(event) => {
-                                    const value = event.currentTarget.value
-                                    const stock = parseOptionalStock(value)
-                                    if (value && stock === null) {
-                                      setNotice({
-                                        kind: 'error',
-                                        message:
-                                          'A quantidade deve ser um inteiro entre 0 e 10.000.000.',
-                                      })
-                                      return
-                                    }
-                                    updateVariant(selectedCategory.id, product.id, variant.id, {
-                                      stock,
-                                    })
-                                  }}
-                                  className={INPUT_CLASS_NAME}
-                                />
-                              </div>
-                              <label className="flex items-center gap-2 self-end pb-3 text-xs">
-                                <input
-                                  type="checkbox"
-                                  checked={variant.active}
-                                  onChange={(event) =>
-                                    updateVariant(selectedCategory.id, product.id, variant.id, {
-                                      active: event.currentTarget.checked,
-                                    })
-                                  }
-                                  className="size-4 accent-primary"
-                                />
-                                Ativa
-                              </label>
+                        {selectedCategory.id !== 'assistencia-tecnica' && (
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <h4 className="text-sm font-semibold">
+                                {selectedCategory.variantLabel}, preço e quantidade
+                              </h4>
                               <button
                                 type="button"
-                                onClick={() =>
-                                  removeVariant(selectedCategory.id, product.id, variant.id)
-                                }
-                                aria-label={`Remover opção ${variant.label}`}
-                                className="flex size-10 items-center justify-center self-end rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+                                onClick={() => addVariant(selectedCategory.id, product.id)}
+                                className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-foreground"
                               >
-                                <Trash2 className="size-4" aria-hidden="true" />
+                                <Plus className="size-4" aria-hidden="true" />
+                                Adicionar opção
                               </button>
                             </div>
-                          ))}
-                        </div>
+
+                            {product.variants.map((variant, variantIndex) => (
+                              <div
+                                key={variant.id}
+                                className="grid gap-3 rounded-xl border border-border/70 bg-card/50 p-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_9rem_7rem_auto_auto]"
+                              >
+                                <div>
+                                  <label
+                                    htmlFor={`${variant.id}-label`}
+                                    className="mb-1.5 block text-xs text-muted-foreground"
+                                  >
+                                    Opção {variantIndex + 1}
+                                  </label>
+                                  <input
+                                    id={`${variant.id}-label`}
+                                    maxLength={80}
+                                    value={variant.label}
+                                    onChange={(event) =>
+                                      updateVariant(
+                                        selectedCategory.id,
+                                        product.id,
+                                        variant.id,
+                                        { label: event.currentTarget.value },
+                                      )
+                                    }
+                                    className={INPUT_CLASS_NAME}
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    htmlFor={`${variant.id}-price`}
+                                    className="mb-1.5 block text-xs text-muted-foreground"
+                                  >
+                                    Preço (R$)
+                                  </label>
+                                  <input
+                                    id={`${variant.id}-price`}
+                                    type="number"
+                                    min="0"
+                                    max="100000000"
+                                    step="0.01"
+                                    value={variant.price ?? ''}
+                                    onChange={(event) => {
+                                      const value = event.currentTarget.value
+                                      const price = parseOptionalNumber(value)
+                                      if (value && price === null) {
+                                        setNotice({
+                                          kind: 'error',
+                                          message:
+                                            'Informe um preço entre R$ 0 e R$ 100.000.000.',
+                                        })
+                                        return
+                                      }
+                                      updateVariant(
+                                        selectedCategory.id,
+                                        product.id,
+                                        variant.id,
+                                        { price },
+                                      )
+                                    }}
+                                    className={INPUT_CLASS_NAME}
+                                  />
+                                </div>
+                                <div>
+                                  <label
+                                    htmlFor={`${variant.id}-stock`}
+                                    className="mb-1.5 block text-xs text-muted-foreground"
+                                  >
+                                    Quantidade
+                                  </label>
+                                  <input
+                                    id={`${variant.id}-stock`}
+                                    type="number"
+                                    min="0"
+                                    max="10000000"
+                                    step="1"
+                                    value={variant.stock ?? ''}
+                                    onChange={(event) => {
+                                      const value = event.currentTarget.value
+                                      const stock = parseOptionalStock(value)
+                                      if (value && stock === null) {
+                                        setNotice({
+                                          kind: 'error',
+                                          message:
+                                            'A quantidade deve ser um inteiro entre 0 e 10.000.000.',
+                                        })
+                                        return
+                                      }
+                                      updateVariant(
+                                        selectedCategory.id,
+                                        product.id,
+                                        variant.id,
+                                        { stock },
+                                      )
+                                    }}
+                                    className={INPUT_CLASS_NAME}
+                                  />
+                                </div>
+                                <label className="flex items-center gap-2 self-end pb-3 text-xs">
+                                  <input
+                                    type="checkbox"
+                                    checked={variant.active}
+                                    onChange={(event) =>
+                                      updateVariant(
+                                        selectedCategory.id,
+                                        product.id,
+                                        variant.id,
+                                        { active: event.currentTarget.checked },
+                                      )
+                                    }
+                                    className="size-4 accent-primary"
+                                  />
+                                  Ativa
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    removeVariant(
+                                      selectedCategory.id,
+                                      product.id,
+                                      variant.id,
+                                    )
+                                  }
+                                  aria-label={`Remover opção ${variant.label}`}
+                                  className="flex size-10 items-center justify-center self-end rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+                                >
+                                  <Trash2 className="size-4" aria-hidden="true" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </details>
                   ))}

@@ -41,6 +41,7 @@ export type StoreCategory = {
 
 export type StoreCatalog = {
   categories: StoreCategory[]
+  seedVersion?: number
 }
 
 const CONFIGURATOR_CATEGORY_IDS: ReadonlySet<string> = new Set([
@@ -48,6 +49,7 @@ const CONFIGURATOR_CATEGORY_IDS: ReadonlySet<string> = new Set([
   'xiaomi-poco',
   'apple-watch',
   'macbook',
+  'assistencia-tecnica',
   'eletronicos-acessorios',
   'troque-seu-usado',
 ])
@@ -56,30 +58,39 @@ export function isConfiguratorCategory(categoryId: string) {
   return CONFIGURATOR_CATEGORY_IDS.has(categoryId)
 }
 
+export function canOpenConfigurator(category: Pick<StoreCategory, 'id' | 'products'>) {
+  return (
+    isConfiguratorCategory(category.id) &&
+    (category.id === 'assistencia-tecnica' ||
+      category.products.some((product) => product.active))
+  )
+}
+
+const IPHONE_STORAGE_OPTIONS = ['64 GB', '128 GB', '256 GB', '512 GB', '1 TB', '2 TB']
 const IPHONE_MODELS = [
-  { name: 'iPhone 11', capacities: ['64 GB', '128 GB', '256 GB'] },
-  { name: 'iPhone 11 Pro', capacities: ['64 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 11 Pro Max', capacities: ['64 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 12 mini', capacities: ['64 GB', '128 GB', '256 GB'] },
-  { name: 'iPhone 12', capacities: ['64 GB', '128 GB', '256 GB'] },
-  { name: 'iPhone 12 Pro', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 12 Pro Max', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 13 mini', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 13', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 13 Pro', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 13 Pro Max', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 14', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 14 Plus', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 14 Pro', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 14 Pro Max', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 15', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 15 Plus', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 15 Pro', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 15 Pro Max', capacities: ['256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 16', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 16 Plus', capacities: ['128 GB', '256 GB', '512 GB'] },
-  { name: 'iPhone 16 Pro', capacities: ['128 GB', '256 GB', '512 GB', '1 TB'] },
-  { name: 'iPhone 16 Pro Max', capacities: ['256 GB', '512 GB', '1 TB'] },
+  'iPhone 11',
+  'iPhone 11 Pro',
+  'iPhone 11 Pro Max',
+  'iPhone 12 mini',
+  'iPhone 12',
+  'iPhone 12 Pro',
+  'iPhone 12 Pro Max',
+  'iPhone 13 mini',
+  'iPhone 13',
+  'iPhone 13 Pro',
+  'iPhone 13 Pro Max',
+  'iPhone 14',
+  'iPhone 14 Plus',
+  'iPhone 14 Pro',
+  'iPhone 14 Pro Max',
+  'iPhone 15',
+  'iPhone 15 Plus',
+  'iPhone 15 Pro',
+  'iPhone 15 Pro Max',
+  'iPhone 16',
+  'iPhone 16 Plus',
+  'iPhone 16 Pro',
+  'iPhone 16 Pro Max',
 ]
 
 function createId(value: string) {
@@ -107,7 +118,68 @@ function createStoreProduct(name: string, options: string[], requireDetails = fa
   }
 }
 
+function createPricedStoreProduct(
+  name: string,
+  options: Array<{ label: string; price: number | null }>,
+): StoreProduct {
+  const productId = createId(name)
+  return {
+    id: productId,
+    name,
+    detail: '',
+    active: true,
+    requireDetails: false,
+    variants: options.map(({ label, price }) => ({
+      id: `${productId}-${createId(label)}`,
+      label,
+      active: true,
+      price,
+      stock: null,
+    })),
+  }
+}
+
+const CATALOG_SEED_VERSION = 1
+const MACBOOK_PRODUCTS = [
+  createPricedStoreProduct('Mac mini M2 8/256 GB', [{ label: 'Padrão', price: 3650 }]),
+  createPricedStoreProduct('Mac mini M2 8/512 GB', [{ label: 'Silver', price: 3800 }]),
+  createPricedStoreProduct('Mac mini M4 16/512 GB', [{ label: 'Padrão', price: 5950 }]),
+  createPricedStoreProduct('Mac mini M6 16/256 GB', [{ label: 'Padrão', price: 6350 }]),
+  createPricedStoreProduct('MacBook Neo 13” 8/256 GB', [
+    { label: 'Azul', price: 5150 },
+    { label: 'Silver', price: 5300 },
+  ]),
+  createPricedStoreProduct('MacBook Neo 13” 8/512 GB', [
+    { label: 'Azul', price: 5850 },
+    { label: 'Silver', price: 5900 },
+  ]),
+  createPricedStoreProduct('MacBook Air M4 13” 16 GB/512 GB', [
+    { label: 'Midnight', price: 7850 },
+  ]),
+  createPricedStoreProduct('MacBook Air M5 13” 16 GB/512 GB', [
+    { label: 'Starlight', price: 8350 },
+    { label: 'Midnight', price: 8350 },
+    { label: 'Sky Blue', price: 8350 },
+    { label: 'Silver', price: 8350 },
+  ]),
+  createPricedStoreProduct('MacBook Air M5 13” 16 GB/1 TB', [
+    { label: 'Midnight', price: 10590 },
+    { label: 'Starlight', price: 10590 },
+    { label: 'Sky Blue', price: 10590 },
+  ]),
+  createPricedStoreProduct('MacBook M5 Pro Chip Pro 16” 24 GB/1 TB', [
+    { label: 'Space Black', price: 19800 },
+  ]),
+  createPricedStoreProduct('MacBook Air M5 13” 16 GB/512 GB Open Box', [
+    { label: 'Midnight', price: 8100 },
+  ]),
+  createPricedStoreProduct('MacBook Air M5 13” 16 GB/512 GB STAR (sem lacre)', [
+    { label: 'STAR — sem lacre', price: 8600 },
+  ]),
+]
+
 export const DEFAULT_CATALOG: StoreCatalog = {
+  seedVersion: CATALOG_SEED_VERSION,
   categories: [
     {
       id: 'iphone',
@@ -119,8 +191,8 @@ export const DEFAULT_CATALOG: StoreCatalog = {
       variantLabel: 'Armazenamento',
       allowTradeIn: true,
       products: [
-        ...IPHONE_MODELS.map(({ name, capacities }) => createStoreProduct(name, capacities)),
-        createStoreProduct('Outro modelo', ['A confirmar com a equipe'], true),
+        ...IPHONE_MODELS.map((name) => createStoreProduct(name, IPHONE_STORAGE_OPTIONS)),
+        createStoreProduct('Outro modelo', IPHONE_STORAGE_OPTIONS, true),
       ],
     },
     {
@@ -143,9 +215,28 @@ export const DEFAULT_CATALOG: StoreCatalog = {
       message: 'Olá! Quero consultar Apple Watch e acessórios disponíveis.',
       icon: 'watch',
       active: true,
-      variantLabel: 'Tamanho / versão',
+      variantLabel: 'Cor',
       allowTradeIn: false,
-      products: [createStoreProduct('Outro modelo Apple Watch', ['A confirmar com a equipe'], true)],
+      products: [
+        createPricedStoreProduct('Apple Watch SE 3 40 mm', [
+          { label: 'Starlight', price: null },
+          { label: 'Midnight', price: null },
+        ]),
+        createPricedStoreProduct('Apple Watch SE 3 44 mm', [
+          { label: 'Midnight', price: null },
+        ]),
+        createPricedStoreProduct('Apple Watch S11 42 mm', [{ label: 'Rosa', price: null }]),
+        createPricedStoreProduct('Apple Watch S11 46 mm', [{ label: 'Silver', price: null }]),
+        createPricedStoreProduct('Apple Watch S12 42 mm', [
+          { label: 'Light Gold com pulseira Black Sport', price: null },
+          { label: 'Dark Bronze', price: null },
+        ]),
+        createPricedStoreProduct('Apple Watch S12 46 mm', [
+          { label: 'Black', price: null },
+          { label: 'Dark Bronze', price: null },
+        ]),
+        createPricedStoreProduct('Apple Watch Ultra 4', [{ label: 'Black', price: null }]),
+      ],
     },
     {
       id: 'macbook',
@@ -154,9 +245,9 @@ export const DEFAULT_CATALOG: StoreCatalog = {
       message: 'Olá! Quero consultar os MacBooks disponíveis.',
       icon: 'laptop',
       active: true,
-      variantLabel: 'Memória / armazenamento',
+      variantLabel: 'Cor / edição',
       allowTradeIn: false,
-      products: [createStoreProduct('Outro modelo MacBook', ['A confirmar com a equipe'], true)],
+      products: MACBOOK_PRODUCTS,
     },
     {
       id: 'eletronicos-acessorios',
@@ -165,15 +256,23 @@ export const DEFAULT_CATALOG: StoreCatalog = {
       message: 'Olá! Quero conhecer os eletrônicos e acessórios disponíveis.',
       icon: 'cable',
       active: true,
-      variantLabel: 'Cor / versão',
+      variantLabel: 'Tipo de acessório',
       allowTradeIn: false,
-      products: [createStoreProduct('Outro eletrônico ou acessório', ['A confirmar com a equipe'], true)],
+      products: [
+        createStoreProduct('Capinha', [], true),
+        createStoreProduct('Película', [], true),
+        createStoreProduct('Fones', [], true),
+        createStoreProduct('Relógios', [], true),
+        createStoreProduct('Cabos', [], true),
+        createStoreProduct('Fontes', [], true),
+        createStoreProduct('Outros', [], true),
+      ],
     },
     {
       id: 'assistencia-tecnica',
       title: 'Assistência técnica',
-      detail: 'Atendimento técnico especializado.',
-      message: 'Olá! Preciso de informações sobre assistência técnica.',
+      detail: 'Selecione o modelo do aparelho e descreva o problema.',
+      message: 'Olá! Gostaria de solicitar assistência técnica para o meu aparelho.',
       icon: 'wrench',
       active: true,
       variantLabel: 'Serviço',
@@ -198,6 +297,168 @@ export const DEFAULT_CATALOG: StoreCatalog = {
       ],
     },
   ],
+}
+
+function normalizeCatalogName(value: string) {
+  return value.trim().toLocaleLowerCase('pt-BR')
+}
+
+function normalizeLegacyAccessoryName(category: StoreCategory): StoreCategory {
+  if (category.id !== 'eletronicos-acessorios') return category
+
+  const legacyName = 'Outro eletrônico ou acessório'
+  const normalizedProducts = category.products.map((product) =>
+    product.id === createId(legacyName) ||
+    normalizeCatalogName(product.name) === normalizeCatalogName(legacyName)
+      ? { ...product, name: 'Outros' }
+      : product,
+  )
+  const otherProducts = normalizedProducts.filter(
+    (product) => normalizeCatalogName(product.name) === 'outros',
+  )
+  const moveOtherLast = (products: StoreProduct[]) => [
+    ...products.filter((product) => normalizeCatalogName(product.name) !== 'outros'),
+    ...products.filter((product) => normalizeCatalogName(product.name) === 'outros'),
+  ]
+  if (otherProducts.length <= 1) {
+    const changed = normalizedProducts.some(
+      (product, index) => product !== category.products[index],
+    )
+    return changed ? { ...category, products: moveOtherLast(normalizedProducts) } : category
+  }
+
+  const canonicalOther =
+    otherProducts.find((product) => product.id === createId('Outros')) ?? otherProducts[0]
+  const mergedOther = otherProducts
+    .filter((product) => product !== canonicalOther)
+    .reduce(
+      (existing, duplicate) =>
+        mergeSeedProduct(
+          {
+            ...existing,
+            detail: existing.detail || duplicate.detail,
+            active: existing.active && duplicate.active,
+            requireDetails: existing.requireDetails || duplicate.requireDetails,
+          },
+          {
+            ...duplicate,
+            variants: duplicate.variants.filter(
+              (variant) => variant.label !== 'A confirmar com a equipe',
+            ),
+          },
+        ),
+      canonicalOther,
+    )
+  let insertedCanonical = false
+  const products = normalizedProducts.filter((product) => {
+    if (normalizeCatalogName(product.name) !== 'outros') return true
+    if (insertedCanonical) return false
+    insertedCanonical = true
+    return true
+  }).map((product) =>
+    normalizeCatalogName(product.name) === 'outros' ? mergedOther : product,
+  )
+
+  return { ...category, products: moveOtherLast(products) }
+}
+
+function isUntouchedLegacyPlaceholder(categoryId: string, product: StoreProduct) {
+  const placeholderNames: Record<string, string> = {
+    'apple-watch': 'Outro modelo Apple Watch',
+    macbook: 'Outro modelo MacBook',
+    'eletronicos-acessorios': 'Outro eletrônico ou acessório',
+  }
+  const name = placeholderNames[categoryId]
+  if (
+    !name ||
+    product.id !== createId(name) ||
+    product.name !== name ||
+    product.detail !== '' ||
+    !product.active ||
+    !product.requireDetails ||
+    product.variants.length !== 1
+  ) {
+    return false
+  }
+
+  const [variant] = product.variants
+  return (
+    variant.id === `${product.id}-${createId('A confirmar com a equipe')}` &&
+    variant.label === 'A confirmar com a equipe' &&
+    variant.active &&
+    variant.price === null &&
+    variant.stock === null
+  )
+}
+
+function mergeSeedProduct(existing: StoreProduct, seeded: StoreProduct): StoreProduct {
+  const variants = [...existing.variants]
+  for (const seededVariant of seeded.variants) {
+    const alreadyExists = variants.some(
+      (variant) =>
+        variant.id === seededVariant.id ||
+        normalizeCatalogName(variant.label) === normalizeCatalogName(seededVariant.label),
+    )
+    if (!alreadyExists) variants.push(seededVariant)
+  }
+
+  return { ...seeded, ...existing, variants }
+}
+
+export function migrateStoreCatalog(catalog: StoreCatalog): StoreCatalog {
+  const categories = catalog.categories.map(normalizeLegacyAccessoryName)
+  if ((catalog.seedVersion ?? 0) >= CATALOG_SEED_VERSION) {
+    return categories.some((category, index) => category !== catalog.categories[index])
+      ? { ...catalog, categories }
+      : catalog
+  }
+
+  const legacyVariantLabels: Record<string, string> = {
+    'apple-watch': 'Tamanho / versão',
+    macbook: 'Memória / armazenamento',
+    'eletronicos-acessorios': 'Cor / versão',
+  }
+
+  return {
+    ...catalog,
+    seedVersion: CATALOG_SEED_VERSION,
+    categories: categories.map((category) => {
+      const seedCategory = DEFAULT_CATALOG.categories.find(
+        (entry) => entry.id === category.id,
+      )
+      if (!seedCategory) return category
+
+      const remainingProducts = category.products.filter(
+        (product) => !isUntouchedLegacyPlaceholder(category.id, product),
+      )
+
+      const products: StoreProduct[] = []
+      for (const seededProduct of seedCategory.products) {
+        const existingIndex = remainingProducts.findIndex(
+          (product) =>
+            product.id === seededProduct.id ||
+            normalizeCatalogName(product.name) === normalizeCatalogName(seededProduct.name),
+        )
+        if (existingIndex < 0) {
+          products.push(seededProduct)
+        } else {
+          products.push(
+            mergeSeedProduct(remainingProducts[existingIndex], seededProduct),
+          )
+          remainingProducts.splice(existingIndex, 1)
+        }
+      }
+
+      return {
+        ...category,
+        variantLabel:
+          category.variantLabel === legacyVariantLabels[category.id]
+            ? seedCategory.variantLabel
+            : category.variantLabel,
+        products: [...products, ...remainingProducts],
+      }
+    }),
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -292,7 +553,15 @@ function isStoreCategory(value: unknown): value is StoreCategory {
 }
 
 export function isStoreCatalog(value: unknown): value is StoreCatalog {
-  if (!isRecord(value) || !Array.isArray(value.categories) || value.categories.length > 50) {
+  if (
+    !isRecord(value) ||
+    !Array.isArray(value.categories) ||
+    value.categories.length > 50 ||
+    (value.seedVersion !== undefined &&
+      (typeof value.seedVersion !== 'number' ||
+        !Number.isSafeInteger(value.seedVersion) ||
+        value.seedVersion < 0))
+  ) {
     return false
   }
 

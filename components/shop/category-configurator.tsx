@@ -27,24 +27,53 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
   const [tradeInModel, setTradeInModel] = useState('')
   const [tradeInStorage, setTradeInStorage] = useState('')
   const [tradeInDetails, setTradeInDetails] = useState('')
+  const [tradeInBattery, setTradeInBattery] = useState('')
+  const [tradeInColor, setTradeInColor] = useState('')
+  const [tradeInOriginalBox, setTradeInOriginalBox] = useState('')
+  const [tradeInFaceIdWorking, setTradeInFaceIdWorking] = useState('')
+  const [tradeInPartsReplaced, setTradeInPartsReplaced] = useState('')
+  const [tradeInReplacedParts, setTradeInReplacedParts] = useState('')
+  const [tradeInObservations, setTradeInObservations] = useState('')
+  const isIPhone = category.id === 'iphone'
+  const isAssistance = category.id === 'assistencia-tecnica'
+  const [assistanceModel, setAssistanceModel] = useState('')
 
   const products = category.products.filter((product) => product.active)
+  const usesManualAssistanceModel = isAssistance && products.length === 0
   const selectedProduct = products.find((product) => product.id === selectedProductId)
   const variants = selectedProduct?.variants.filter((variant) => variant.active) ?? []
   const selectedVariant = variants.find((variant) => variant.id === selectedVariantId)
   const productNeedsVariant = Boolean(selectedProduct?.variants.length)
-  const hasSelection = Boolean(
-    selectedProduct && (!productNeedsVariant || selectedVariant),
+  const hasSelection = usesManualAssistanceModel
+    ? Boolean(assistanceModel.trim())
+    : Boolean(
+        selectedProduct && (!productNeedsVariant || selectedVariant),
+      )
+  const shouldShowProductDetails = Boolean(
+    isAssistance || selectedProduct?.requireDetails,
   )
   const hasNoActiveVariants = Boolean(
     selectedProduct && productNeedsVariant && variants.length === 0,
   )
   const isOutOfStock = selectedVariant?.stock === 0
+  const requiresProductDetails = isAssistance
+    ? usesManualAssistanceModel || Boolean(selectedProduct?.requireDetails)
+    : Boolean(selectedProduct?.requireDetails)
   const missingProductDetails = Boolean(
-    selectedProduct?.requireDetails && notes.trim().length < 4,
+    requiresProductDetails && notes.trim().length < 4,
   )
   const missingTradeInDetails = Boolean(
-    hasTradeIn && (!tradeInModel.trim() || tradeInDetails.trim().length < 8),
+    hasTradeIn &&
+      (!tradeInModel.trim() ||
+        tradeInDetails.trim().length < 8 ||
+        (isIPhone &&
+          (!tradeInStorage ||
+            !tradeInBattery ||
+            !tradeInColor.trim() ||
+            !tradeInOriginalBox ||
+            !tradeInFaceIdWorking ||
+            !tradeInPartsReplaced ||
+            (tradeInPartsReplaced === 'Sim' && !tradeInReplacedParts.trim())))),
   )
   const canSendInquiry = Boolean(
     hasSelection &&
@@ -53,31 +82,65 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
       !missingTradeInDetails,
   )
   let disabledInquiryLabel = 'Escolha uma opção'
-  if (missingProductDetails) disabledInquiryLabel = 'Preencha os detalhes'
+  if (usesManualAssistanceModel && !assistanceModel.trim()) {
+    disabledInquiryLabel = 'Informe o modelo do aparelho'
+  }
+  if (missingProductDetails) {
+    disabledInquiryLabel = isAssistance
+      ? 'Descreva o problema'
+      : 'Preencha os detalhes'
+  }
   if (missingTradeInDetails) disabledInquiryLabel = 'Preencha os dados da troca'
   if (hasNoActiveVariants) disabledInquiryLabel = 'Sem opções disponíveis'
   if (isOutOfStock) disabledInquiryLabel = 'Opção sem estoque'
 
-  const messageLines = [
-    category.message,
-    `Categoria: ${category.title}`,
-    `Produto/modelo: ${selectedProduct?.name ?? ''}`,
-    selectedVariant
-      ? `${category.variantLabel}: ${selectedVariant.label}`
-      : 'Opção: a confirmar com a equipe',
-    selectedVariant?.price !== null && selectedVariant?.price !== undefined
-      ? `Valor cadastrado: ${formatBRL(selectedVariant.price)}`
-      : 'Gostaria de confirmar o valor atualizado.',
-    `Tenho aparelho para troca: ${hasTradeIn ? 'Sim' : 'Não'}.`,
-  ]
+  const messageLines = isAssistance
+    ? [
+        category.message,
+        'PEDIDO DE ASSISTÊNCIA TÉCNICA',
+        `Modelo do aparelho: ${selectedProduct?.name ?? assistanceModel.trim()}`,
+        ...(selectedVariant
+          ? [`${category.variantLabel}: ${selectedVariant.label}`]
+          : []),
+        `O que aconteceu com o aparelho: ${notes.trim() || 'Não informado'}`,
+      ]
+    : [
+        category.message,
+        `Categoria: ${category.title}`,
+        `Produto/modelo: ${selectedProduct?.name ?? ''}`,
+        selectedVariant
+          ? `${category.variantLabel}: ${selectedVariant.label}`
+          : 'Opção: a confirmar com a equipe',
+        selectedVariant?.price !== null && selectedVariant?.price !== undefined
+          ? `Valor cadastrado: ${formatBRL(selectedVariant.price)}`
+          : 'Gostaria de confirmar o valor atualizado.',
+        `Tenho aparelho para troca: ${hasTradeIn ? 'Sim' : 'Não'}.`,
+      ]
 
-  if (notes.trim()) messageLines.push(`Observações: ${notes.trim()}`)
+  if (!isAssistance && notes.trim()) {
+    messageLines.push(`Observações: ${notes.trim()}`)
+  }
   if (hasTradeIn) {
-    messageLines.push(
-      `Aparelho para troca: ${tradeInModel.trim()}`,
-      `Armazenamento do aparelho: ${tradeInStorage || 'Não informado'}`,
-      `Estado e características: ${tradeInDetails.trim()}`,
-    )
+    messageLines.push(`Aparelho para troca: ${tradeInModel.trim()}`)
+    messageLines.push(`Armazenamento do aparelho: ${tradeInStorage || 'Não informado'}`)
+
+    if (isIPhone) {
+      messageLines.push(
+        `Saúde da bateria: ${tradeInBattery}`,
+        `Cor: ${tradeInColor.trim()}`,
+        `Caixa original: ${tradeInOriginalBox}`,
+        `Detalhes do aparelho: ${tradeInDetails.trim()}`,
+        `Face ID funciona: ${tradeInFaceIdWorking}`,
+        tradeInPartsReplaced === 'Sim'
+          ? `Peça trocada: Sim — ${tradeInReplacedParts.trim()}`
+          : 'Peça trocada: Não',
+      )
+      if (tradeInObservations.trim()) {
+        messageLines.push(`Observações da troca: ${tradeInObservations.trim()}`)
+      }
+    } else {
+      messageLines.push(`Estado e características: ${tradeInDetails.trim()}`)
+    }
   }
 
   const message = canSendInquiry ? messageLines.join('\n') : ''
@@ -86,19 +149,32 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
     setSelectedProductId(productId)
     setSelectedVariantId('')
     setNotes('')
+    setAssistanceModel('')
     setHasTradeIn(false)
+    resetTradeInDetails()
+  }
+
+  function resetTradeInDetails() {
     setTradeInModel('')
     setTradeInStorage('')
     setTradeInDetails('')
+    setTradeInBattery('')
+    setTradeInColor('')
+    setTradeInOriginalBox('')
+    setTradeInFaceIdWorking('')
+    setTradeInPartsReplaced('')
+    setTradeInReplacedParts('')
+    setTradeInObservations('')
   }
 
   function handleTradeInChange(checked: boolean) {
     setHasTradeIn(checked)
-    if (!checked) {
-      setTradeInModel('')
-      setTradeInStorage('')
-      setTradeInDetails('')
-    }
+    if (!checked) resetTradeInDetails()
+  }
+
+  function handleTradeInPartsReplacedChange(value: string) {
+    setTradeInPartsReplaced(value)
+    if (value !== 'Sim') setTradeInReplacedParts('')
   }
 
   return (
@@ -118,38 +194,56 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
             <legend className="px-2">
               <span className="font-display text-lg">01</span>
               <span className="ml-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Escolha o produto
+                {isAssistance ? 'Informe o aparelho' : 'Escolha o produto'}
               </span>
             </legend>
 
-            <label htmlFor="category-product" className="mb-2 block text-sm font-medium">
-              {category.title}
+            <label
+              htmlFor={usesManualAssistanceModel ? 'assistance-model' : 'category-product'}
+              className="mb-2 block text-sm font-medium"
+            >
+              {isAssistance ? 'Modelo do aparelho' : category.title}
             </label>
             <div className="relative">
               <Smartphone
                 className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
                 aria-hidden="true"
               />
-              <select
-                id="category-product"
-                required
-                value={selectedProductId}
-                onChange={(event) => handleProductChange(event.currentTarget.value)}
-                className={`${FIELD_CLASS_NAME} appearance-none pl-11 pr-11`}
-              >
-                <option value="" disabled>
-                  Selecione uma opção
-                </option>
-                {products.map((product) => (
-                  <option key={product.id} value={product.id}>
-                    {product.name}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                aria-hidden="true"
-              />
+              {usesManualAssistanceModel ? (
+                <input
+                  id="assistance-model"
+                  type="text"
+                  required
+                  maxLength={100}
+                  value={assistanceModel}
+                  onChange={(event) => setAssistanceModel(event.currentTarget.value)}
+                  placeholder="Ex.: iPhone 13 Pro"
+                  className={`${FIELD_CLASS_NAME} pl-11`}
+                />
+              ) : (
+                <>
+                  <select
+                    id="category-product"
+                    required
+                    value={selectedProductId}
+                    onChange={(event) => handleProductChange(event.currentTarget.value)}
+                    className={`${FIELD_CLASS_NAME} appearance-none pl-11 pr-11`}
+                  >
+                    <option value="" disabled>
+                      {isAssistance ? 'Selecione o modelo' : 'Selecione uma opção'}
+                    </option>
+                    {products.map((product) => (
+                      <option key={product.id} value={product.id}>
+                        {product.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </>
+              )}
             </div>
             {selectedProduct?.detail && (
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -211,28 +305,35 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
             </p>
           )}
 
-          {selectedProduct?.requireDetails && (
+          {shouldShowProductDetails && (
             <div className="rounded-2xl border border-border/70 bg-background/50 p-4 sm:p-6">
               <label htmlFor="product-details" className="mb-2 block text-sm font-medium">
-                {category.id === 'troque-seu-usado'
-                  ? 'Descreva o aparelho para avaliação'
-                  : 'Conte o que você procura'}
+                {isAssistance
+                  ? 'O que aconteceu com o aparelho?'
+                  : category.id === 'troque-seu-usado'
+                    ? 'Descreva o aparelho para avaliação'
+                    : 'Conte o que você procura'}
               </label>
               <textarea
                 id="product-details"
-                required
-                minLength={4}
+                required={requiresProductDetails}
+                minLength={requiresProductDetails ? 4 : undefined}
                 maxLength={1000}
                 rows={3}
                 value={notes}
                 onChange={(event) => setNotes(event.currentTarget.value)}
                 placeholder={
-                  category.id === 'troque-seu-usado'
-                    ? 'Informe modelo, armazenamento, estado de conservação e defeitos conhecidos.'
-                    : 'Informe o modelo ou detalhe que não encontrou na lista.'
+                  isAssistance
+                    ? category.detail
+                    : category.id === 'troque-seu-usado'
+                      ? 'Informe modelo, armazenamento, estado de conservação e defeitos conhecidos.'
+                      : 'Informe o modelo ou detalhe que não encontrou na lista.'
                 }
                 className={`${FIELD_CLASS_NAME} resize-y`}
               />
+              {isAssistance && !requiresProductDetails && (
+                <p className="mt-2 text-xs text-muted-foreground">Opcional</p>
+              )}
             </div>
           )}
 
@@ -284,11 +385,16 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
                       </label>
                       <select
                         id="trade-in-storage"
+                        required={isIPhone}
                         value={tradeInStorage}
                         onChange={(event) => setTradeInStorage(event.currentTarget.value)}
                         className={FIELD_CLASS_NAME}
                       >
-                        <option value="">Não sei informar</option>
+                        <option value="" disabled={isIPhone}>
+                          {isIPhone ? 'Selecione o armazenamento' : 'Não sei informar'}
+                        </option>
+                        <option>8 GB</option>
+                        <option>16 GB</option>
                         <option>32 GB</option>
                         <option>64 GB</option>
                         <option>128 GB</option>
@@ -300,9 +406,130 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
                     </div>
                   </div>
 
+                  {isIPhone && (
+                    <>
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label htmlFor="trade-in-battery" className="mb-2 block text-sm font-medium">
+                            Saúde da bateria
+                          </label>
+                          <select
+                            id="trade-in-battery"
+                            required
+                            value={tradeInBattery}
+                            onChange={(event) => setTradeInBattery(event.currentTarget.value)}
+                            className={FIELD_CLASS_NAME}
+                          >
+                            <option value="" disabled>
+                              Selecione a faixa
+                            </option>
+                            <option>Entre 100% e 90%</option>
+                            <option>Entre 90% e 80%</option>
+                            <option>Entre 80% e 70%</option>
+                            <option>Entre 70% e 60%</option>
+                            <option>Entre 60% e 50%</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="trade-in-color" className="mb-2 block text-sm font-medium">
+                            Cor
+                          </label>
+                          <input
+                            id="trade-in-color"
+                            type="text"
+                            required
+                            maxLength={60}
+                            value={tradeInColor}
+                            onChange={(event) => setTradeInColor(event.currentTarget.value)}
+                            placeholder="Ex.: preto"
+                            className={FIELD_CLASS_NAME}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div>
+                          <label htmlFor="trade-in-original-box" className="mb-2 block text-sm font-medium">
+                            Possui caixa original?
+                          </label>
+                          <select
+                            id="trade-in-original-box"
+                            required
+                            value={tradeInOriginalBox}
+                            onChange={(event) => setTradeInOriginalBox(event.currentTarget.value)}
+                            className={FIELD_CLASS_NAME}
+                          >
+                            <option value="" disabled>
+                              Selecione
+                            </option>
+                            <option>Sim</option>
+                            <option>Não</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label htmlFor="trade-in-face-id" className="mb-2 block text-sm font-medium">
+                            Face ID funciona?
+                          </label>
+                          <select
+                            id="trade-in-face-id"
+                            required
+                            value={tradeInFaceIdWorking}
+                            onChange={(event) => setTradeInFaceIdWorking(event.currentTarget.value)}
+                            className={FIELD_CLASS_NAME}
+                          >
+                            <option value="" disabled>
+                              Selecione
+                            </option>
+                            <option>Sim</option>
+                            <option>Não</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label htmlFor="trade-in-parts-replaced" className="mb-2 block text-sm font-medium">
+                          Alguma peça foi trocada?
+                        </label>
+                        <select
+                          id="trade-in-parts-replaced"
+                          required
+                          value={tradeInPartsReplaced}
+                          onChange={(event) =>
+                            handleTradeInPartsReplacedChange(event.currentTarget.value)
+                          }
+                          className={FIELD_CLASS_NAME}
+                        >
+                          <option value="" disabled>
+                            Selecione
+                          </option>
+                          <option>Sim</option>
+                          <option>Não</option>
+                        </select>
+                      </div>
+
+                      {tradeInPartsReplaced === 'Sim' && (
+                        <div>
+                          <label htmlFor="trade-in-replaced-parts" className="mb-2 block text-sm font-medium">
+                            Qual peça foi trocada?
+                          </label>
+                          <input
+                            id="trade-in-replaced-parts"
+                            type="text"
+                            required
+                            maxLength={200}
+                            value={tradeInReplacedParts}
+                            onChange={(event) => setTradeInReplacedParts(event.currentTarget.value)}
+                            placeholder="Informe a peça trocada"
+                            className={FIELD_CLASS_NAME}
+                          />
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   <div>
                     <label htmlFor="trade-in-details" className="mb-2 block text-sm font-medium">
-                      Estado, características e defeitos
+                      {isIPhone ? 'Detalhes do aparelho' : 'Estado, características e defeitos'}
                     </label>
                     <textarea
                       id="trade-in-details"
@@ -312,13 +539,34 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
                       rows={4}
                       value={tradeInDetails}
                       onChange={(event) => setTradeInDetails(event.currentTarget.value)}
-                      placeholder="Ex.: tela trincada, bateria, marcas de uso ou outros detalhes importantes."
+                      placeholder={
+                        isIPhone
+                          ? 'Informe marcas de uso, defeitos ou outros detalhes importantes.'
+                          : 'Ex.: tela trincada, bateria, marcas de uso ou outros detalhes importantes.'
+                      }
                       className={`${FIELD_CLASS_NAME} resize-y`}
                     />
                     <p className="mt-2 text-xs text-muted-foreground">
                       A avaliação final é feita pela equipe após analisar o aparelho.
                     </p>
                   </div>
+
+                  {isIPhone && (
+                    <div>
+                      <label htmlFor="trade-in-observations" className="mb-2 block text-sm font-medium">
+                        Observações adicionais (opcional)
+                      </label>
+                      <textarea
+                        id="trade-in-observations"
+                        maxLength={500}
+                        rows={3}
+                        value={tradeInObservations}
+                        onChange={(event) => setTradeInObservations(event.currentTarget.value)}
+                        placeholder="Alguma outra informação que a equipe deve saber?"
+                        className={`${FIELD_CLASS_NAME} resize-y`}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </fieldset>
@@ -344,9 +592,12 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
               <dd className="text-right font-semibold">{category.title}</dd>
             </div>
             <div className="flex items-start justify-between gap-4">
-              <dt className="text-muted-foreground">Produto</dt>
+              <dt className="text-muted-foreground">
+                {isAssistance ? 'Modelo' : 'Produto'}
+              </dt>
               <dd className="text-right font-semibold">
-                {selectedProduct?.name ?? 'Aguardando seleção'}
+                {selectedProduct?.name ??
+                  (assistanceModel.trim() || 'Aguardando seleção')}
               </dd>
             </div>
             {selectedVariant && (
@@ -355,24 +606,28 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
                 <dd className="text-right font-semibold">{selectedVariant.label}</dd>
               </div>
             )}
-            <div className="flex items-start justify-between gap-4">
-              <dt className="text-muted-foreground">Valor</dt>
-              <dd className="text-right font-semibold">
-                {selectedVariant?.price !== null && selectedVariant?.price !== undefined
-                  ? formatBRL(selectedVariant.price)
-                  : 'Consultar'}
-              </dd>
-            </div>
-            <div className="flex items-start justify-between gap-4">
-              <dt className="text-muted-foreground">Disponibilidade</dt>
-              <dd className="text-right font-semibold">
-                {selectedVariant?.stock === 0
-                  ? 'Indisponível'
-                  : selectedVariant?.stock
-                    ? `${selectedVariant.stock} em estoque`
-                    : 'Consultar'}
-              </dd>
-            </div>
+            {!isAssistance && (
+              <>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">Valor</dt>
+                  <dd className="text-right font-semibold">
+                    {selectedVariant?.price !== null && selectedVariant?.price !== undefined
+                      ? formatBRL(selectedVariant.price)
+                      : 'Consultar'}
+                  </dd>
+                </div>
+                <div className="flex items-start justify-between gap-4">
+                  <dt className="text-muted-foreground">Disponibilidade</dt>
+                  <dd className="text-right font-semibold">
+                    {selectedVariant?.stock === 0
+                      ? 'Indisponível'
+                      : selectedVariant?.stock
+                        ? `${selectedVariant.stock} em estoque`
+                        : 'Consultar'}
+                  </dd>
+                </div>
+              </>
+            )}
             {hasSelection && category.allowTradeIn && (
               <div className="flex items-start justify-between gap-4">
                 <dt className="text-muted-foreground">Troca</dt>
@@ -384,8 +639,9 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
           </dl>
 
           <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
-            Estoque e valores podem mudar. A equipe confirma as informações antes de concluir o
-            atendimento.
+            {isAssistance
+              ? 'Nossa equipe vai analisar as informações e orientar os próximos passos.'
+              : 'Estoque e valores podem mudar. A equipe confirma as informações antes de concluir o atendimento.'}
           </p>
 
           <div className="mt-7">
@@ -402,7 +658,7 @@ export function CategoryConfigurator({ category }: { category: StoreCategory }) 
                 className="group flex min-h-14 w-full items-center justify-center gap-3 rounded-full bg-primary px-6 py-4 text-center text-sm font-semibold text-primary-foreground transition-all hover:scale-[1.02] hover:shadow-[0_10px_40px_color-mix(in_oklch,var(--primary)_35%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
               >
                 <WhatsappIcon className="size-4 text-[#25D366]" />
-                <span>Consultar pelo WhatsApp</span>
+                <span>{isAssistance ? 'Solicitar assistência pelo WhatsApp' : 'Consultar pelo WhatsApp'}</span>
                 <ArrowRight
                   className="size-4 transition-transform group-hover:translate-x-1"
                   aria-hidden="true"

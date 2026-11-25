@@ -58,7 +58,7 @@ export function SiteHeader() {
         <div className="flex items-center gap-2 sm:gap-3">
           <Link
             href="/loja"
-            className="hidden text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80 sm:block md:hidden"
+            className="text-xs font-semibold uppercase tracking-[0.2em] text-foreground/80 md:hidden"
           >
             Vitrine
           </Link>

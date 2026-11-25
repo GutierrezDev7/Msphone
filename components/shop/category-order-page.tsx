@@ -5,6 +5,7 @@ import type { StoreCategory } from '@/lib/store-catalog'
 
 export function CategoryOrderPage({ category }: { category: StoreCategory }) {
   const isIPhone = category.id === 'iphone'
+  const isAssistance = category.id === 'assistencia-tecnica'
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-20 pt-24 sm:px-5 md:px-8 md:pb-24 md:pt-40">
@@ -21,7 +22,11 @@ export function CategoryOrderPage({ category }: { category: StoreCategory }) {
           Vitrine MS PHONE · {category.title}
         </p>
         <h1 className="font-display text-4xl leading-[0.95] text-balance min-[380px]:text-5xl sm:text-6xl md:text-8xl">
-          {isIPhone ? (
+          {isAssistance ? (
+            <>
+              Conte com nossa <span className="text-primary">assistência técnica.</span>
+            </>
+          ) : isIPhone ? (
             <>
               Seu próximo iPhone, <span className="text-primary">do seu jeito.</span>
             </>
@@ -32,7 +37,10 @@ export function CategoryOrderPage({ category }: { category: StoreCategory }) {
           )}
         </h1>
         <p className="mt-5 max-w-2xl text-pretty leading-relaxed text-muted-foreground sm:text-lg">
-          {category.detail} Consulte disponibilidade e valores atualizados com a equipe.
+            {category.detail}{' '}
+            {isAssistance
+              ? 'Nossa equipe vai orientar você pelo WhatsApp.'
+              : 'Consulte disponibilidade e valores atualizados com a equipe.'}
         </p>
       </header>
 

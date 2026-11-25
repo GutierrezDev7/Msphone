@@ -1,7 +1,12 @@
 import 'server-only'
 
 import { get, put } from '@vercel/blob'
-import { DEFAULT_CATALOG, isStoreCatalog, type StoreCatalog } from '@/lib/store-catalog'
+import {
+  DEFAULT_CATALOG,
+  isStoreCatalog,
+  migrateStoreCatalog,
+  type StoreCatalog,
+} from '@/lib/store-catalog'
 import {
   hasVercelBlobCredentials,
   STORE_CATALOG_BLOB_PATH,
@@ -24,7 +29,7 @@ export async function getStoreCatalog(): Promise<StoreCatalog> {
     throw new Error('The saved store catalog is invalid.')
   }
 
-  return catalog
+  return migrateStoreCatalog(catalog)
 }
 
 function parseCatalogJson(value: string): unknown {

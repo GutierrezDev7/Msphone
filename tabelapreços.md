@@ -1,0 +1,92 @@
+tabela dos macbook
+
+MAC MINI M2 8/256GB
+R$3.650
+
+MAC MINI M2 8/512GB
+⚪️ SILVER
+R$3.800
+
+MAC MINI M4 16/512GB
+R$5.950
+
+MAC MINI M6 16/256GB
+R$6.350
+
+MACBOOK NEO 13” 8/256GB
+🔵 AZUL
+R$5.150
+
+MACBOOK NEO 13” 8/256GB
+⚪️ SILVER
+R$5.300
+
+MACBOOK NEO 13” 8/512GB
+🔵 AZUL
+R$5.850
+
+MACBOOK NEO 13” 8/512GB
+⚪️ SILVER
+R$5.900
+
+MACBOOK AIR M4 13” 16GB/512GB
+⚫️ MIDNIGHT
+R$7.850
+
+MACBOOK AIR M5 13” 16GB/512GB
+⚪️ STARLIGHT ⚫️ MIDNIGHT 🩵 SKY BLUE ⚪️ SILVER
+R$8.350
+
+MACBOOK AIR M5 13” 16GB/1TB
+⚫️ MIDNIGHT ⚪️ STARLIGHT 🩵 SKY BLUE
+R$10.590
+
+MACBOOK M5 PRO CHIP PRO 16” 24/1TB
+⚫️ SPACE BLACK
+R$19.800
+
+MACBOOK AIR M5 13” 16GB/512GB OPEN BOX
+⚫️ MIDNIGHT
+R$8.100
+
+MACBOOK AIR M5 13” 16GB/512GB STAR
+SEM LACRE
+R$8.600
+
+
+
+APPLE WATCH
+
+⌚️Watch SE 3 40mm 
+🎨Starlight
+💸R$
+🎨 Midnight
+💸 R$
+
+⌚️ Watch SE 3 44mm
+🎨Midnight
+💸R$
+
+⌚️Watch S11 42mm 
+🎨Rosa
+💸R$
+
+⌚️Watch S11 46mm 
+🎨Silver
+💸R$
+
+⌚️ Watch S12 42mm 
+🎨Light Gold e Black Sport band
+💸R$
+🎨Dark Bronze
+💸R$
+
+⌚️ Watch S12 46mm
+🎨Black
+💸R$
+🎨 Dark Bronze
+💸R$ 
+
+⌚️Watch Ultra 4 
+🎨Black
+💸 R$

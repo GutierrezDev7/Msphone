@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { connection } from 'next/server'
 import { CategoryOrderPage } from '@/components/shop/category-order-page'
-import { isConfiguratorCategory } from '@/lib/store-catalog'
+import { canOpenConfigurator } from '@/lib/store-catalog'
 import { getStoreCatalog } from '@/lib/store-catalog-server'
 
 export const metadata: Metadata = {
@@ -21,13 +21,7 @@ export default async function CategoryPage({
   const catalog = await getStoreCatalog()
   const category = catalog.categories.find((entry) => entry.id === slug && entry.active)
 
-  if (
-    !category ||
-    !isConfiguratorCategory(category.id) ||
-    !category.products.some((product) => product.active)
-  ) {
-    notFound()
-  }
+  if (!category || !canOpenConfigurator(category)) notFound()
 
   return <CategoryOrderPage category={category} />
 }
