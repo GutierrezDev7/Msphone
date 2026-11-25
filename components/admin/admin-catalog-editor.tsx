@@ -20,6 +20,9 @@ import {
 } from '@/lib/store-catalog'
 
 type Notice = { kind: 'success' | 'error'; message: string }
+type PendingRemoval =
+  | { kind: 'category'; categoryId: string }
+  | { kind: 'product'; categoryId: string; productId: string }
 
 const INPUT_CLASS_NAME =
   'w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-primary/20'
@@ -57,6 +60,7 @@ export function AdminCatalogEditor() {
   const [catalog, setCatalog] = useState<StoreCatalog | null>(null)
   const [savedSnapshot, setSavedSnapshot] = useState('')
   const [selectedCategoryId, setSelectedCategoryId] = useState('')
+  const [pendingRemoval, setPendingRemoval] = useState<PendingRemoval | null>(null)
   const [notice, setNotice] = useState<Notice | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -177,13 +181,11 @@ export function AdminCatalogEditor() {
 
     updateCatalog((current) => ({ ...current, categories: [...current.categories, category] }))
     setSelectedCategoryId(category.id)
+    setPendingRemoval(null)
   }
 
   function removeCategory(categoryId: string) {
-    const category = catalog?.categories.find((entry) => entry.id === categoryId)
-    if (!category || !window.confirm(`Remover a categoria "${category.title}" e todos os seus produtos?`)) {
-      return
-    }
+    if (!catalog?.categories.some((entry) => entry.id === categoryId)) return
 
     const remaining = catalog?.categories.filter((entry) => entry.id !== categoryId) ?? []
     updateCatalog((current) => ({
@@ -191,6 +193,7 @@ export function AdminCatalogEditor() {
       categories: current.categories.filter((entry) => entry.id !== categoryId),
     }))
     setSelectedCategoryId(remaining[0]?.id ?? '')
+    setPendingRemoval(null)
   }
 
   function addProduct(categoryId: string) {
@@ -233,9 +236,6 @@ export function AdminCatalogEditor() {
   }
 
   function removeProduct(categoryId: string, productId: string) {
-    const product = selectedCategory?.products.find((entry) => entry.id === productId)
-    if (!product || !window.confirm(`Remover "${product.name}" e todas as suas opções?`)) return
-
     updateCatalog((current) => ({
       ...current,
       categories: current.categories.map((category) =>
@@ -247,6 +247,7 @@ export function AdminCatalogEditor() {
           : category,
       ),
     }))
+    setPendingRemoval(null)
   }
 
   function addVariant(categoryId: string, productId: string) {
@@ -401,7 +402,10 @@ export function AdminCatalogEditor() {
               <button
                 key={category.id}
                 type="button"
-                onClick={() => setSelectedCategoryId(category.id)}
+                onClick={() => {
+                  setSelectedCategoryId(category.id)
+                  setPendingRemoval(null)
+                }}
                 className={`flex w-auto min-w-32 shrink-0 items-center justify-between gap-3 rounded-xl px-3 py-3 text-left text-sm transition-colors lg:w-full ${
                   category.id === selectedCategoryId
                     ? 'bg-primary/10 font-semibold text-foreground'
@@ -433,14 +437,47 @@ export function AdminCatalogEditor() {
                   </p>
                   <h3 className="mt-2 font-display text-2xl">{selectedCategory.title}</h3>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeCategory(selectedCategory.id)}
-                  aria-label={`Remover categoria ${selectedCategory.title}`}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
-                >
-                  <Trash2 className="size-4" aria-hidden="true" />
-                </button>
+                {pendingRemoval?.kind === 'category' &&
+                pendingRemoval.categoryId === selectedCategory.id ? (
+                  <div
+                    role="group"
+                    aria-label={`Confirmar remoção da categoria ${selectedCategory.title}`}
+                    className="flex flex-wrap items-center justify-end gap-2"
+                  >
+                    <span className="text-xs text-muted-foreground">
+                      Remover categoria e todos os produtos?
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeCategory(selectedCategory.id)}
+                      className="inline-flex min-h-9 items-center gap-2 rounded-full bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground transition-opacity hover:opacity-90"
+                    >
+                      <Trash2 className="size-4" aria-hidden="true" />
+                      Confirmar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPendingRemoval(null)}
+                      className="inline-flex min-h-9 items-center rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setPendingRemoval({
+                        kind: 'category',
+                        categoryId: selectedCategory.id,
+                      })
+                    }
+                    aria-label={`Remover categoria ${selectedCategory.title}`}
+                    className="flex size-10 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-destructive/50 hover:text-destructive"
+                  >
+                    <Trash2 className="size-4" aria-hidden="true" />
+                  </button>
+                )}
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -615,14 +652,49 @@ export function AdminCatalogEditor() {
 
                       <div className="space-y-5 border-t border-border/70 p-4 sm:p-5">
                         <div className="flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => removeProduct(selectedCategory.id, product.id)}
-                            className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-destructive"
-                          >
-                            <Trash2 className="size-4" aria-hidden="true" />
-                            Remover produto
-                          </button>
+                          {pendingRemoval?.kind === 'product' &&
+                          pendingRemoval.categoryId === selectedCategory.id &&
+                          pendingRemoval.productId === product.id ? (
+                            <div
+                              role="group"
+                              aria-label={`Confirmar remoção de ${product.name}`}
+                              className="flex flex-wrap items-center justify-end gap-3"
+                            >
+                              <span className="text-xs text-muted-foreground">
+                                Remover produto e todas as opções?
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => removeProduct(selectedCategory.id, product.id)}
+                                className="inline-flex min-h-9 items-center gap-2 rounded-full bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground transition-opacity hover:opacity-90"
+                              >
+                                <Trash2 className="size-4" aria-hidden="true" />
+                                Confirmar remoção
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPendingRemoval(null)}
+                                className="inline-flex min-h-9 items-center rounded-full border border-border px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-muted"
+                              >
+                                Cancelar
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPendingRemoval({
+                                  kind: 'product',
+                                  categoryId: selectedCategory.id,
+                                  productId: product.id,
+                                })
+                              }
+                              className="inline-flex items-center gap-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-destructive"
+                            >
+                              <Trash2 className="size-4" aria-hidden="true" />
+                              Remover produto
+                            </button>
+                          )}
                         </div>
 
                         <div className="grid gap-4 sm:grid-cols-2">
